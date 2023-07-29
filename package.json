@@ -1,21 +1,21 @@
 {
-  "name": "pull-request-details",
+  "name": "multi-approved-event-action",
   "version": "0.0.0",
   "private": true,
   "description": "An action provides an event after a certain number of approvals.",
   "main": "lib/main.js",
   "scripts": {
-    "build": "tsc",
+    "build": "./node_modules/typescript/bin/tsc",
     "format": "prettier --write '**/*.ts'",
     "format-check": "prettier --check '**/*.ts'",
     "lint": "eslint src/**/*.ts",
     "package": "ncc build --source-map --license licenses.txt",
     "test": "jest",
-    "all": "npm run build && npm run format && npm run lint && npm run package && npm test"
+    "all": "npm run build && npm run format && npm run package && npm test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ihtkas/pull-request-details.git"
+    "url": "git+https://github.com/sakhnovict/multi-approved-event-action.git"
   },
   "keywords": [
     "actions",
@@ -25,9 +25,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.10.0",
+    "@actions/core": "^1.9.0",
     "@actions/github": "^5.0.3",
     "@octokit/rest": "^16.35.0",
+    "cjs-module": "^1.5.0",
     "streaming-iterables": "^7.0.4"
   },
   "devDependencies": {
