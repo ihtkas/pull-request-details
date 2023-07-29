@@ -1,0 +1,20 @@
+name: Multi Approved Example Job
+on:
+  pull_request_review:
+    types: [submitted]
+jobs:
+  onSubmit:
+    if: github.event.review.state == 'approved'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ./
+        id: approved
+        with:
+          approvalsCount: '2'
+          onlyEqual: 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: echo "${{ steps.approved.outputs.isApproved }}"
+      - run: echo "Approved 2 times."
+        if: steps.approved.outputs.isApproved == 'true'
