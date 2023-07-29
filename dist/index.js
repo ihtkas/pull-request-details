@@ -44,51 +44,46 @@ function run() {
                 return;
             }
             const payload = yield getGithubPayload(githubEnv.eventPath);
-            const action = payload.action;
-            const state = payload.review.state;
             if (!payload.pull_request) {
                 (0, core_1.setFailed)("This event doesn't contain PR");
             }
-            if (isSubmittedAction(action, state)) {
-                const approvalsCount = getApprovalsCount();
-                const onlyEqual = (0, core_1.getInput)('onlyEqual').toLocaleLowerCase() === 'true';
-                const octokit = new rest_1.default({ auth: `token ${githubEnv.token}` });
-                const [owner, repo] = githubEnv.repositoryPath.split('/');
-                const options = octokit.pulls.listReviews.endpoint.merge({
-                    owner,
-                    repo,
-                    pull_number: (_e = payload.pull_request) === null || _e === void 0 ? void 0 : _e.number
-                });
-                const list = (0, streaming_iterables_1.map)((response) => response.data, octokit.paginate.iterator(options));
-                const users = new Set();
-                try {
-                    for (var _f = __asyncValues((0, streaming_iterables_1.flatten)(list)), _g; _g = yield _f.next(), !_g.done;) {
-                        const review = _g.value;
-                        if (review.state === 'APPROVED') {
-                            users.add(review.user.login);
-                            const condition = onlyEqual ? approvalsCount === users.size : approvalsCount <= users.size;
-                            log(review.user.login, users);
-                            if (condition) {
-                                (0, core_1.setOutput)('isApproved', 'true');
-                                (0, core_1.exportVariable)('isApproved', 'true');
-                            }
-                            else {
-                                (0, core_1.setOutput)('isApproved', 'false');
-                                (0, core_1.exportVariable)('isApproved', 'false');
-                            }
+            const approvalsCount = getApprovalsCount();
+            const onlyEqual = (0, core_1.getInput)('onlyEqual').toLocaleLowerCase() === 'true';
+            const octokit = new rest_1.default({ auth: `token ${githubEnv.token}` });
+            const [owner, repo] = githubEnv.repositoryPath.split('/');
+            const options = octokit.pulls.listReviews.endpoint.merge({
+                owner,
+                repo,
+                pull_number: (_e = payload.pull_request) === null || _e === void 0 ? void 0 : _e.number
+            });
+            const list = (0, streaming_iterables_1.map)((response) => response.data, octokit.paginate.iterator(options));
+            const users = new Set();
+            try {
+                for (var _f = __asyncValues((0, streaming_iterables_1.flatten)(list)), _g; _g = yield _f.next(), !_g.done;) {
+                    const review = _g.value;
+                    if (review.state === 'APPROVED') {
+                        users.add(review.user.login);
+                        const condition = onlyEqual
+                            ? approvalsCount === users.size
+                            : approvalsCount <= users.size;
+                        log(review.user.login, users);
+                        if (condition) {
+                            (0, core_1.setOutput)('isApproved', 'true');
+                            (0, core_1.exportVariable)('isApproved', 'true');
+                        }
+                        else {
+                            (0, core_1.setOutput)('isApproved', 'false');
+                            (0, core_1.exportVariable)('isApproved', 'false');
                         }
                     }
                 }
-                catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                finally {
-                    try {
-                        if (_g && !_g.done && (_a = _f.return)) yield _a.call(_f);
-                    }
-                    finally { if (e_1) throw e_1.error; }
-                }
             }
-            else {
-                (0, core_1.info)(`${process.env.GITHUB_EVENT_NAME}/${action}/${state} doesn't support.`);
+            catch (e_1_1) { e_1 = { error: e_1_1 }; }
+            finally {
+                try {
+                    if (_g && !_g.done && (_a = _f.return)) yield _a.call(_f);
+                }
+                finally { if (e_1) throw e_1.error; }
             }
         }
         catch (error) {
@@ -107,9 +102,7 @@ run();
  */
 function isExistGithubEnvironmentVariables(githubEnv) {
     const { token, repositoryPath, eventPath } = githubEnv;
-    return (token !== null &&
-        repositoryPath !== null &&
-        eventPath !== null);
+    return token !== null && repositoryPath !== null && eventPath !== null;
 }
 /**
  * Get github payload.
@@ -121,15 +114,6 @@ function getGithubPayload(path) {
         const payload = JSON.parse(raw);
         return payload;
     });
-}
-/**
- * Check that action is submitted,
- * @param action Action.
- * @param state Review state.
- */
-function isSubmittedAction(action, state) {
-    return (action === 'submitted' &&
-        state === 'approved');
 }
 function getApprovalsCount() {
     const DEFAULT_APPROVALS_COUNT = 1;
